@@ -14,17 +14,18 @@ jobs:
       - name: Login to docker hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}     
       - name: Build Docker Image
-        run: docker build -t manendrarawat/nodejs-app  .
+        run: docker build -t manendrarawat/reactjs-app --build-arg REACT_APP_NODE_ENV='production' --build-arg REACT_APP_SERVER_BASE_URL='${{ secrets.REACT_APP_SERVER_BASE_URL }}'  .
+
       - name: Publish Image to docker hub
-        run: docker push manendrarawat/nodejs-app:latest 
+        run: docker push manendrarawat/reactjs-app:latest 
  
   deploy:
     needs: build
     runs-on: self-hosted 
     steps:
       - name: Pull image from docker hub
-        run: docker pull manendrarawat/nodejs-app:latest 
+        run: docker pull manendrarawat/reactjs-app:latest 
       - name: Delete old container
-        run: docker rm -f nodejs-app-container  
+        run: docker rm -f reactjs-app-container  
       - name: Run Docker Container
-        run: docker run -d -p 4000:4000 --name nodejs-app-container -e MONGO_PASSWORD='${{ secrets.MONGO_PASSWORD }}' manendrarawat/nodejs-app
+        run: docker run -d -p 3000:80 --name reactjs-app-container manendrarawat/reactjs-app
